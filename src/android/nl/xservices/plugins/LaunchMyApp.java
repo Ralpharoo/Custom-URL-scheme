@@ -9,6 +9,7 @@ import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -23,6 +24,7 @@ public class LaunchMyApp extends CordovaPlugin {
   private static final String ACTION_GETLASTINTENT = "getLastIntent";
 
   private String lastIntentString = null;
+  private JSONObject lastIntent = null;
 
   /**
    * We don't want to interfere with other plugins requiring the intent data,
@@ -52,15 +54,31 @@ public class LaunchMyApp extends CordovaPlugin {
       final Intent intent = ((CordovaActivity) this.webView.getContext()).getIntent();
       final String intentString = intent.getDataString();
       if (intentString != null && intent.getScheme() != null) {
+        
+        JSONObject json = new JSONObject();
+        Set<String> keys = bundle.keySet();
+        for (String key : keys) {
+            try {
+                // json.put(key, bundle.get(key)); see edit below
+                json.put(key, JSONObject.wrap(bundle.get(key)));
+            } catch(JSONException e) {
+                //Handle exception here
+            }
+        }
+        
+        // Keep the intent;
+        lastIntent = json;
         lastIntentString = intentString;
-        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, intent.getDataString()));
+        
+        // Send back the JSON
+        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, json));
       } else {
         callbackContext.error("App was not started via the launchmyapp URL scheme. Ignoring this errorcallback is the best approach.");
       }
       return true;
     } else if (ACTION_GETLASTINTENT.equalsIgnoreCase(action)) {
       if(lastIntentString != null) {
-        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, lastIntentString));
+        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, lastIntent));
       } else {
         callbackContext.error("No intent received so far.");
       }
