@@ -1,6 +1,10 @@
 package nl.xservices.plugins;
 
 import android.content.Intent;
+import android.util.Patterns;
+import android.util.Log;
+import android.os.Bundle;
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaActivity;
 import org.apache.cordova.CordovaPlugin;
