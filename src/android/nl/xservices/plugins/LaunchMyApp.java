@@ -16,6 +16,11 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.Locale;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public class LaunchMyApp extends CordovaPlugin {
 
@@ -56,14 +61,16 @@ public class LaunchMyApp extends CordovaPlugin {
       if (intentString != null && intent.getScheme() != null) {
         
         JSONObject json = new JSONObject();
+        Bundle bundle = intent.getExtras();
+        try {
+            json.put("intent", JSONObject.wrap(intentString));
+        } catch(JSONException e) { }
+        
         Set<String> keys = bundle.keySet();
         for (String key : keys) {
             try {
-                // json.put(key, bundle.get(key)); see edit below
                 json.put(key, JSONObject.wrap(bundle.get(key)));
-            } catch(JSONException e) {
-                //Handle exception here
-            }
+            } catch(JSONException e) { }
         }
         
         // Keep the intent;
