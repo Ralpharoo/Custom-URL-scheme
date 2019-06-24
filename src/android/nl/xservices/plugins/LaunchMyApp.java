@@ -109,7 +109,8 @@ public class LaunchMyApp extends CordovaPlugin {
   private JSONObject parseIntent(Intent intent) {
     JSONObject json = new JSONObject();
     final String intentString = intent.getDataString();
-      if (intentString != null && intent.getScheme() != null) {
+    
+    if (intentString != null && intent.getScheme() != null) {
         
         // Add the intent key
         try {
@@ -137,12 +138,11 @@ public class LaunchMyApp extends CordovaPlugin {
               } catch(JSONException e) { }
           }
         }
-    
-        // Keep the intent;
-        lastIntent = json;
-        lastIntentString = intentString;
      }
      
+     // Keep the intent;
+     lastIntent = json;
+     lastIntentString = intentString;
      return json;
   }
   
