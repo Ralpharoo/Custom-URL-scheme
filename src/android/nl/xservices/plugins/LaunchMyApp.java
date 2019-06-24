@@ -120,6 +120,8 @@ public class LaunchMyApp extends CordovaPlugin {
             json.put("type", JSONObject.wrap(intent.getType()));
             json.put("data", JSONObject.wrap(intent.getData()));
             json.put("package", JSONObject.wrap(intent.getPackage())); 
+            json.put("selector", JSONObject.wrap(intent.getSelector())); 
+            json.put("package", JSONObject.wrap(intent.getPackage())); 
         } catch(JSONException e) { }
         
         // Add the extra data
