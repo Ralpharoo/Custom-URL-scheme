@@ -118,11 +118,13 @@ public class LaunchMyApp extends CordovaPlugin {
 
         // Add the extra data
         Bundle bundle = intent.getExtras();
-        Set<String> keys = bundle.keySet();
-        for (String key : keys) {
-            try {
-                json.put(key, JSONObject.wrap(bundle.get(key)));
-            } catch(JSONException e) { }
+        if (bundle != null) {
+          Set<String> keys = bundle.keySet();
+          for (String key : keys) {
+              try {
+                  json.put(key, JSONObject.wrap(bundle.get(key)));
+              } catch(JSONException e) { }
+          }
         }
     
         // Keep the intent;
