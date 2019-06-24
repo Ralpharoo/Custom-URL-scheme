@@ -63,25 +63,8 @@ public class LaunchMyApp extends CordovaPlugin {
       final Intent intent = ((CordovaActivity) this.webView.getContext()).getIntent();
       final String intentString = intent.getDataString();
       if (intentString != null && intent.getScheme() != null) {
-        
-        JSONObject json = new JSONObject();
-        Bundle bundle = intent.getExtras();
-        try {
-            json.put("intent", JSONObject.wrap(intentString));
-        } catch(JSONException e) { }
-        
-        Set<String> keys = bundle.keySet();
-        for (String key : keys) {
-            try {
-                json.put(key, JSONObject.wrap(bundle.get(key)));
-            } catch(JSONException e) { }
-        }
-        
-        // Keep the intent;
-        lastIntent = json;
-        lastIntentString = intentString;
-        
         // Send back the JSON
+        JSONObject json = parseIntent(intent);
         callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, json));
       } else {
         callbackContext.error("App was not started via the launchmyapp URL scheme. Ignoring this errorcallback is the best approach.");
@@ -102,12 +85,18 @@ public class LaunchMyApp extends CordovaPlugin {
 
   @Override
   public void onNewIntent(Intent intent) {
-    final String intentString = intent.getDataString();
+    String intentString = intent.getDataString();
     if (intentString != null && intent.getScheme() != null) {
+      // Get the JSON
+      JSONObject json = parseIntent(intent);
+      
       if (resetIntent){
         intent.setData(null);
       }
+      
       try {
+        // Use the JSON object
+        intentString = json.toString();
         StringWriter writer = new StringWriter(intentString.length() * 2);
         escapeJavaStyleString(writer, intentString, true, false);
         webView.loadUrl("javascript:handleOpenURL('" + URLEncoder.encode(writer.toString()) + "');");
@@ -116,6 +105,34 @@ public class LaunchMyApp extends CordovaPlugin {
     }
   }
 
+  // Parse the intent and data
+  private JSONObject parseIntent(Intent intent) {
+    JSONObject json = new JSONObject();
+    final String intentString = intent.getDataString();
+      if (intentString != null && intent.getScheme() != null) {
+        
+        // Add the intent key
+        try {
+            json.put("intent", JSONObject.wrap(intentString));
+        } catch(JSONException e) { }
+
+        // Add the extra data
+        Bundle bundle = intent.getExtras();
+        Set<String> keys = bundle.keySet();
+        for (String key : keys) {
+            try {
+                json.put(key, JSONObject.wrap(bundle.get(key)));
+            } catch(JSONException e) { }
+        }
+    
+        // Keep the intent;
+        lastIntent = json;
+        lastIntentString = intentString;
+     }
+     
+     return json;
+  }
+  
   // Taken from commons StringEscapeUtils
   private static void escapeJavaStyleString(Writer out, String str, boolean escapeSingleQuote,
                                             boolean escapeForwardSlash) throws IOException {
