@@ -85,22 +85,29 @@ public class LaunchMyApp extends CordovaPlugin {
 
   @Override
   public void onNewIntent(Intent intent) {
-    String intentString = intent.getDataString();
-    if (intentString != null && intent.getScheme() != null) {
-      // Get the JSON
-      JSONObject json = parseIntent(intent);
-      
+    final String intentString = intent.getDataString();
+    final String scheme = intent.getScheme();
+    if (intentString != null && scheme != null) {
       if (resetIntent){
         intent.setData(null);
       }
-      
       try {
-        // Use the JSON object
-        intentString = json.toString();
         StringWriter writer = new StringWriter(intentString.length() * 2);
         escapeJavaStyleString(writer, intentString, true, false);
         webView.loadUrl("javascript:handleOpenURL('" + URLEncoder.encode(writer.toString()) + "');");
       } catch (IOException ignore) {
+
+      }
+    } else {
+      final String extraString = intent.getStringExtra(Intent.EXTRA_TEXT);
+      if (extraString.length() > 0) {
+        try {
+          StringWriter writer = new StringWriter(extraString.length() * 2);
+          escapeJavaStyleString(writer, extraString, true, false);
+          webView.loadUrl("javascript:handleOpenURL('" + URLEncoder.encode(writer.toString()) + "');");
+        } catch (IOException ignore) {
+
+        }
       }
     }
   }
