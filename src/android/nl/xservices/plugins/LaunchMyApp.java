@@ -100,7 +100,7 @@ public class LaunchMyApp extends CordovaPlugin {
       }
     } else {
       final String extraString = intent.getStringExtra(Intent.EXTRA_TEXT);
-      if (extraString.length() > 0) {
+      if (extraString != null && extraString.length() > 0) {
         try {
           StringWriter writer = new StringWriter(extraString.length() * 2);
           escapeJavaStyleString(writer, extraString, true, false);
