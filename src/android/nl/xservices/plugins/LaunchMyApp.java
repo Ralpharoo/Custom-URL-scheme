@@ -60,12 +60,31 @@ public class LaunchMyApp extends CordovaPlugin {
       }
       return true;
     } else if (ACTION_CHECKINTENT.equalsIgnoreCase(action)) {
-      final Intent intent = ((CordovaActivity) this.webView.getContext()).getIntent();
+      final Intent intent = this.cordova.getActivity().getIntent();
+
+      // Currently this only checks if our scheme was used. We actually care for browser and file calls;
+      final String intentAction = intent.getAction();
+      if (intentAction.equals(Intent.ACTION_SEND)) { // Was it sent?
+        final String type = intent.getType(); //Text/plain?
+        final Object text = intent.getExtras().get(Intent.EXTRA_TEXT);
+        if (text != null) {
+          lastIntentString = text.toString();
+          callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, lastIntentString));
+          return true;
+        }
+        final Object stream = intent.getExtras().get(Intent.EXTRA_STREAM);
+        if (stream != null) {
+          lastIntentString = stream.toString();
+          callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, lastIntentString));
+          return true;
+        }
+      }
+
+      // Fall back on previous approach
       final String intentString = intent.getDataString();
       if (intentString != null && intent.getScheme() != null) {
-        // Send back the JSON
-        JSONObject json = parseIntent(intent);
-        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, json));
+        lastIntentString = intentString;
+        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, lastIntentString));
       } else {
         callbackContext.error("App was not started via the launchmyapp URL scheme. Ignoring this errorcallback is the best approach.");
       }
